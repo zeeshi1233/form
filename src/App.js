@@ -3,6 +3,10 @@ import { Select, Option } from "@material-tailwind/react";
 import React, { useState } from 'react';
 import { Modal, Upload } from 'antd';
 import { db,collection, addDoc,getDocs, ref, uploadBytes,storage,getDownloadURL,setDoc,doc} from './config/firebase';
+import Admin from './admin/index';
+import Swal from 'sweetalert2';
+
+
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -12,6 +16,7 @@ const getBase64 = (file) =>
   });
 
 function App() {
+  
   const [selectedGender, setSelectedGender] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
@@ -54,9 +59,8 @@ let dob=document.getElementById("dob").value;
 let qualification=document.getElementById("qualification").value;
 let address=document.getElementById("address").value;
 let gender=document.getElementById("gender").value;
-
+let errorMsg = ""
 if (!name || !email || !fname || !city || !cnic || !phone || !dob || !qualification || !address || !gender) {
-  let errorMsg = "The following fields are required:\n";
   if (!name) errorMsg += "- Name\n";
   if (!email) errorMsg += "- Email\n";
   if (!fname) errorMsg += "- Father Name\n";
@@ -68,25 +72,44 @@ if (!name || !email || !fname || !city || !cnic || !phone || !dob || !qualificat
   if (!address) errorMsg += "- Address\n";
   if (!gender) errorMsg += "- Gender\n";
   
-  alert(errorMsg);
+  Swal.fire({
+    icon: 'error',
+    title: 'Following Fields are Required.',
+    text: `${errorMsg}`,
+  })
   return;
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const cnicPattern = /^\d{5}-\d{7}-\d{1}$/;
 const phonePattern = /^\d{11}$/;
+if (!fileList[0]) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Image Required.',
+  })
+}
 
 // Validate email, CNIC, and phone number
 if (!emailPattern.test(email)) {
-  alert("Invalid email address");
+  Swal.fire({
+    icon: 'error',
+    title: 'Invalid Email Address.'
+  })
   return;
 }
 if (!cnicPattern.test(cnic)) {
-  alert("Invalid CNIC number. Format should be: 12345-1234567-1");
+  Swal.fire({
+    icon: 'error',
+    title: "Invalid CNIC number. Format should be: 12345-1234567-1"
+  })
   return;
 }
 if (!phonePattern.test(phone)) {
-  alert("Invalid phone number. Phone number should be 11 digits long.");
+  Swal.fire({
+    icon: 'error',
+    title: "Invalid phone number. Phone number should be 11 digits long."
+  })
   return;
 }
 
@@ -139,6 +162,7 @@ try {
   qualification:qualification,
   address:address,
   gender:gender,
+  status:"painding",
   rollNumber:random,
 pic:''
   });
@@ -146,13 +170,14 @@ pic:''
   const storageRef = ref(storage,`images/${docRef.id}`);
 uploadBytes(storageRef, fileList[0].originFileObj).then((snapshot) => {
   console.log('Uploaded a blob or file!');
+
 }).then(()=>{
 
 
 
 getDownloadURL(ref(storage, `images/${docRef.id}`))
   .then(async(url) => {
-  
+    localStorage.setItem("uPic",url)
     await setDoc(doc(db, "Students", docRef.id), {
       name:name,
       email:email,
@@ -164,9 +189,11 @@ getDownloadURL(ref(storage, `images/${docRef.id}`))
       qualification:qualification,
       address:address,
       gender:gender,
+      status:"painding",
       rollNumber:random,
     pic:url
     });
+    
     alert("data submited")
   
   })
@@ -189,6 +216,8 @@ console.log(error);
 
   return (
 <>
+
+
 <section className="text-gray-600 body-font relative">
   <div className="container px-5 py-24 mx-auto">
     <div className="flex flex-col text-center w-full mb-12">
@@ -299,12 +328,19 @@ console.log(error);
 
         <div className="p-2 w-full">
           <button onClick={handleSubmit} className="flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">Submit</button>
+    
+    
+    
         </div>
      
       </div>
     </div>
   </div>
 </section>
+
+
+
+<Admin/>
 
 </>
   

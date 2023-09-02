@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore,collection, addDoc,getDocs,setDoc,doc } from "firebase/firestore";
+import { getFirestore,collection, addDoc,getDocs,setDoc,doc,query, where, onSnapshot } from "firebase/firestore";
 import { getStorage, ref, uploadBytes,getDownloadURL,uploadBytesResumable } from "firebase/storage";
 const firebaseConfig = {
   apiKey: "AIzaSyCvAO22_JAiDn6Ui6-_FTdBBhaB-JiZLqw",
@@ -15,4 +15,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
-export {collection, addDoc,db,getDocs,ref, uploadBytes,storage,getDownloadURL,uploadBytesResumable,setDoc,doc}
+export {collection, addDoc,db,getDocs,ref, uploadBytes,storage,getDownloadURL,uploadBytesResumable,setDoc,doc,query, where, onSnapshot}
